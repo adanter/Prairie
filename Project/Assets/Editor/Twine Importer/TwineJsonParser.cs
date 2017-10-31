@@ -57,6 +57,13 @@ public class TwineJsonParser {
 			if (startNodePid.Equals(twineNode.pid)) {
 				// Enable/activate the start node in the story:
 				twineNodeObject.GetComponent<TwineNode> ().enabled = true;
+				// Parse the content and store variables
+				List<string> raw = twineNode.content.Split("\n")
+				foreach (string r in raw) {
+					Regex.Replace(r, "()", "");
+					string[] pair = r.Split(": ")
+					twineNode.variables[pair[0].Substring(1)] = pair[1]
+				}
 			}
 		}
 

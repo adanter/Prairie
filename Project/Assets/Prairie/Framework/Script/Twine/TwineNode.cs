@@ -15,6 +15,7 @@ public class TwineNode : MonoBehaviour {
 	[HideInInspector]
 	public string[] tags;
 	public string content;
+	public string show = "";
 	public GameObject[] children;
 	[HideInInspector]
 	public string[] childrenNames;
@@ -25,6 +26,10 @@ public class TwineNode : MonoBehaviour {
 	private bool isOptionsGuiOpen = false;
 
 	private int selectedOptionIndex = 0;
+
+	private Dictionary<string, string> variables = new Dictionary<string, string>();
+	private Dictionary<string, string> dicSet = new Dictionary<string, string>();
+	private Dictionary<Tuple<string, string>, string> dicIf = new Dictionary<Tuple<string, string>, string>();
 
 	void Update ()
 	{
@@ -65,7 +70,7 @@ public class TwineNode : MonoBehaviour {
 			GUIStyle style = new GUIStyle (GUI.skin.box);
 			style.wordWrap = true;
 			style.fixedWidth = frameWidth;
-			GUILayout.Box (this.content, style);
+			GUILayout.Box (this.show, style);
 
 			if (isDecisionNode) {
 				GUIStyle decisionHintStyle = new GUIStyle (style);
@@ -132,6 +137,9 @@ public class TwineNode : MonoBehaviour {
 			this.enabled = true;
 			this.isMinimized = false;
 			this.isOptionsGuiOpen = false;
+			this.ParseContent ();
+			this.SetVariables ();
+			this.ChoiceByVarValue ();
 			this.DeactivateAllParents ();
 			this.StartInteractions (interactor);
 
@@ -175,6 +183,8 @@ public class TwineNode : MonoBehaviour {
 		{
 			if (parent.GetComponent<TwineNode> ().enabled) 
 			{
+				// Pass variables from active parent node to child node
+				this.variables = parent.variables
 				return true;
 			}
 		}
@@ -191,5 +201,58 @@ public class TwineNode : MonoBehaviour {
 		{
 			parent.GetComponent<TwineNode> ().Deactivate ();
 		}
+	}
+
+	/// <summary>
+	/// Parse the content of this Twine Node.
+	/// </summary>
+	private void ParseContent()
+	{
+		List<string> raw = this.content.Split("\n");
+		foreach (string section in raw) 
+		{
+			if (section.Contains("set")) {
+				Regex.Replace(section, "()", "");
+				string[] pair = section.Split(" ");
+				dicSet[pair[1].Substring(1)] = pair[3]
+			}
+
+			if (section.Contains("if")) {
+				Regex.Replace(section, "()", "");
+				string[] series = section.Split(" ");
+				Tuple<string, string> tuple = new Tuple<string, string>(series[1].Substring(1), series[3]);
+				Regex.Replace(series[4], "[]", "");
+				dicIf[tuple] = series[4]
+			}
+		}
+	}
+
+	/// <summary>
+	/// Set the variables of this Twine Node.
+	/// </summary>
+	private void SetVariables()
+	{	
+		if (dicSet.Count != 0) {
+			List<string> keyList = new List<string>(this.variables.Keys);
+			foreach (string v in keyList) {
+				if (dicSet.ContainsKey(v)) {
+					variables[v] = dicSet[v]
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Choose what to show based on variable value of this Twine Node.
+	/// </summary>
+	private void ChoiceByVarValue()
+	{
+		if (dicSet.Count != 0) {
+			List<string> ifList = new List<string>(this.dicIf.Keys);
+			foreach (Tuple<string, string> i in ifList) {
+				if (string.Equals(variables[i.Item1], i.Item2)) {
+					show = dicIf[i.Item1]
+				}
+			}
 	}
 }
