@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+//I have no idea why this exists
+
 [System.Serializable]
 public class SerializedStringDictionary : System.Object
 {
