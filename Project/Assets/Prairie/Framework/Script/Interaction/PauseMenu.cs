@@ -22,7 +22,7 @@ public class PauseMenu : MonoBehaviour {
 				gameObject.transform.GetChild(0).gameObject.SetActive (false);
 				Time.timeScale = 1;
 				Cursor.visible = false;
-				Debug.Log("Pressed esc, unpaused");
+				//Debug.Log("Pressed esc, unpaused");
 				GameObject.FindGameObjectsWithTag ("Player")[0].GetComponent<FirstPersonInteractor> ().enabled = true;
 
 			}
