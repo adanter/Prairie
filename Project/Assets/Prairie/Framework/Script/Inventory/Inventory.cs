@@ -127,7 +127,9 @@ public class Inventory : Interaction
 		Transform t = player.transform;
 		Vector3 pos = t.position;
 		// Drop the object right in front of the player
-		obj.transform.SetPositionAndRotation (pos+t.TransformDirection(new Vector3(0.5f, 0f, 0.5f)),
+		obj.transform.SetPositionAndRotation (
+			player.transform.GetComponentInChildren<Camera>().transform.position 
+			+ player.transform.GetComponentInChildren<Camera>().transform.forward * 2, 
 			obj.transform.rotation);
 		obj.SetActive (true);
 	}
