@@ -196,7 +196,7 @@ public class TwineJsonParser
             JSONNode nodeLinks = jsonNode["links"];
 
             twineNode.children = new GameObject[nodeLinks.Count];
-            twineNode.childrenNames = new string[nodeLinks.Count];
+            twineNode.childNames = new string[nodeLinks.Count];
 
             for (int i = 0; i < nodeLinks.Count; i++)
             {
@@ -209,7 +209,7 @@ public class TwineJsonParser
 
                 // Set link as a child, and remember the name.
                 twineNode.children[i] = linkDestination;
-                twineNode.childrenNames[i] = linkName;
+                twineNode.childNames[i] = linkName;
             }
         }
     }

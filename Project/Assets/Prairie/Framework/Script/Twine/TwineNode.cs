@@ -18,7 +18,9 @@ public class TwineNode : MonoBehaviour
     public string show = "";
     public GameObject[] children;
     [HideInInspector]
-    public string[] childrenNames;
+    public string[] childNames;
+    public GameObject[] validChildren;
+    public string[] validChildNames;
     public List<GameObject> parents = new List<GameObject>();
     public bool isDecisionNode;
     public bool isConditionNode;
@@ -46,6 +48,7 @@ public class TwineNode : MonoBehaviour
 
     void Update()
     {
+        UpdateConditionalLinks();
         if (this.enabled)
         {
             if (Input.GetKeyDown(KeyCode.C) && TwineNodeList.IndexOf(this) == 0)
@@ -141,9 +144,9 @@ public class TwineNode : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             player.SetCanMove(false);
             player.SetDrawsGUI(false);
-            for (int index = 0; index < this.childrenNames.Length; index++)
+            for (int index = 0; index < this.validChildNames.Length; index++)
             {
-                if (GUILayout.Button(this.childrenNames[index]))
+                if (GUILayout.Button(this.validChildNames[index]))
                 {
                     this.ActivateChildAtIndex(index);
                 }
@@ -183,7 +186,7 @@ public class TwineNode : MonoBehaviour
                 // Set non-highlighted buttons to have grayed out text (state is called `normal`)
                 optionButtonStyle.normal.textColor = Color.gray;
 
-                selectedOptionIndex = GUILayout.SelectionGrid(selectedOptionIndex, this.childrenNames, 1, optionButtonStyle);
+                selectedOptionIndex = GUILayout.SelectionGrid(selectedOptionIndex, this.validChildNames, 1, optionButtonStyle);
             }
 
             GUI.EndGroup();
@@ -217,7 +220,7 @@ public class TwineNode : MonoBehaviour
                 // Set non-highlighted buttons to have grayed out text (state is called `normal`)
                 optionButtonStyle.normal.textColor = Color.gray;
 
-                selectedOptionIndex = GUILayout.SelectionGrid(selectedOptionIndex, this.childrenNames, 1, optionButtonStyle);
+                selectedOptionIndex = GUILayout.SelectionGrid(selectedOptionIndex, this.validChildNames, 1, optionButtonStyle);
             }
 
             GUI.EndGroup();
@@ -262,8 +265,10 @@ public class TwineNode : MonoBehaviour
         {
             this.enabled = true;
             this.isMinimized = false;
-            this.UpdateTwineVariables();
-            this.isOptionsGuiOpen = false;
+            this.RunVariableAssignments();
+            this.UpdateConditionalLinks();
+            //            this.isOptionsGuiOpen = false;
+
             this.DeactivateAllParents();
             TwineNodeList.Insert(insertIndex, this);
             //            TwineNodeList.Add(this);
@@ -291,7 +296,7 @@ public class TwineNode : MonoBehaviour
             GameObject interactorObject = interactor.gameObject;
 
             // Now activate the child using this interactor!
-            TwineNode child = this.children[index].GetComponent<TwineNode>();
+            TwineNode child = this.validChildren[index].GetComponent<TwineNode>();
             child.Activate(interactorObject);
         }
     }
@@ -338,11 +343,10 @@ public class TwineNode : MonoBehaviour
         }
     }
 
-
     /// <summary>
     /// Change any twine variable values as appropriate
     /// </summary>
-    private void UpdateTwineVariables()
+    private void RunVariableAssignments()
     {
         if (globalVariables == null)
         {
@@ -358,24 +362,50 @@ public class TwineNode : MonoBehaviour
                 globalVariables.AssignValue(varName, varValue);
             }
         }
-        if (conditionalVars != null)
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void UpdateConditionalLinks()
+    {
+        if (conditionalVars.Count > 0)
         {
-            print("Node '" + name + "' has conditions!");
-            Dictionary<string, string> dict = globalVariables.GetVariables();
-            for (int i = 0; i < conditionalVars.Count; i++)
+            if (globalVariables == null)
             {
-                string varName = conditionalVars[i];
-                string varValue = conditionalVals[i];
-                if (varValue == dict[varName])
+                globalVariables = TwineVariables.GetVariableObject();
+            }
+            print("Node '" + name + "' has conditions!");
+            Dictionary<string, string> variableDict = globalVariables.GetVariables();
+
+            List<GameObject> checkedChildren = new List<GameObject>();
+            List<string> checkedChildNames = new List<string>();
+
+            for (int index = 0; index < childNames.Length; index++)
+            {
+                if (!conditionalLinks.Contains(childNames[index]))
                 {
-                    //TODO: Actually enable and disable links
-                    print("Enable link '" + conditionalLinks[i] + "'");
-                }
-                else
+                    checkedChildNames.Add(childNames[index]);
+                    checkedChildren.Add(children[index]);
+                } else
                 {
-                    print("Disable link '" + conditionalLinks[i] + "'");
+                    string linkName = childNames[index];
+                    int condIndex = conditionalLinks.IndexOf(linkName);
+                    string varName = conditionalVars[condIndex];
+                    if (variableDict[varName] == conditionalVals[condIndex])
+                    {
+                        checkedChildNames.Add(childNames[index]);
+                        checkedChildren.Add(children[index]);
+                    }
                 }
             }
+
+            validChildNames = checkedChildNames.ToArray();
+            validChildren = checkedChildren.ToArray();
+        } else
+        {
+            validChildNames = childNames;
+            validChildren = children;
         }
     }
 
