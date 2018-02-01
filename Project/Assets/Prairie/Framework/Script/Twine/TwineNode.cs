@@ -122,7 +122,7 @@ public class TwineNode : MonoBehaviour
 
     public void OnGUI()
     {
-        FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+        //FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
         if (isDecisionNode)
         {
             int frameWidth = Math.Min(Screen.width / 3, 500);
@@ -140,10 +140,11 @@ public class TwineNode : MonoBehaviour
             GUILayout.Box(this.content, style);
 
 
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            player.SetCanMove(false);
-            player.SetDrawsGUI(false);
+            //Cursor.visible = true;
+            //Cursor.lockState = CursorLockMode.None;
+            //player.setWorldActive("Dialogue");
+            //player.SetCanMove(false);
+            //player.SetDrawsGUI(false);
             for (int index = 0; index < this.validChildNames.Length; index++)
             {
                 if (GUILayout.Button(this.validChildNames[index]))
@@ -169,10 +170,11 @@ public class TwineNode : MonoBehaviour
             GUILayout.Box(this.content, style);
             //            print(height);
 
-            player.SetCanMove(true);
-            player.SetDrawsGUI(true);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            //player.SetCanMove(true);
+            //player.SetDrawsGUI(true);
+            //Cursor.visible = false;
+            //Cursor.lockState = CursorLockMode.Locked;
+            //player.setWorldActive("Dialogue");
 
             if (this.isOptionsGuiOpen)
             {
@@ -203,10 +205,11 @@ public class TwineNode : MonoBehaviour
             style.fixedWidth = frameWidth;
             GUILayout.Box(this.content, style);
 
-            player.SetCanMove(true);
-            player.SetDrawsGUI(true);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            //player.SetCanMove(true);
+            //player.SetDrawsGUI(true);
+            //Cursor.visible = false;
+            //Cursor.lockState = CursorLockMode.Locked;
+            //player.setWorldActive("Dialogue");
 
             if (this.isOptionsGuiOpen)
             {
@@ -263,6 +266,11 @@ public class TwineNode : MonoBehaviour
         //        print(TwineNodeList);
         if (!this.enabled && this.HasActiveParentNode())
         {
+            if (this.isDecisionNode)
+            {
+                FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+                player.setWorldActive("Dialogue");
+            }
             this.enabled = true;
             this.isMinimized = false;
             this.RunVariableAssignments();
@@ -303,6 +311,11 @@ public class TwineNode : MonoBehaviour
 
     public void Deactivate()
     {
+        if (this.isDecisionNode)
+        {
+            FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+            player.setWorldActive("Dialogue");
+        }
         this.enabled = false;
         insertIndex = TwineNodeList.IndexOf(this);
         //        print(insertIndex);
