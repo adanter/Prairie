@@ -105,7 +105,7 @@ public class TwineNode : MonoBehaviour
             {
                 this.isOptionsGuiOpen = true;
             }
-            else if (this.isConditionNode)
+            if (this.isConditionNode)
             {
                 // get the $color value from global list
                 // check the platform name by check $color:platform pair stored in condition node
@@ -119,7 +119,39 @@ public class TwineNode : MonoBehaviour
 
     public void OnGUI()
     {
-        if (fanfold)
+        FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+        if (isDecisionNode)
+        {
+            int frameWidth = Math.Min(Screen.width / 3, 500);
+            int frameHeight = Math.Min(Screen.height / 2, 350);
+            int horizontalAlign = (Screen.width - frameWidth) / 2;
+            int verticalAlign = Screen.height - frameHeight;
+
+            Rect frame = new Rect(horizontalAlign, verticalAlign, frameWidth, frameHeight);
+
+            GUI.BeginGroup(frame);
+            GUIStyle style = new GUIStyle(GUI.skin.box);
+            style.normal.textColor = Color.white;
+            style.wordWrap = true;
+            style.fixedWidth = frameWidth;
+            GUILayout.Box(this.content, style);
+
+
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            player.SetCanMove(false);
+            player.SetDrawsGUI(false);
+            for (int index = 0; index < this.childrenNames.Length; index++)
+            {
+                if (GUILayout.Button(this.childrenNames[index]))
+                {
+                    this.ActivateChildAtIndex(index);
+                }
+            }
+
+            GUI.EndGroup();
+        }
+        else if (fanfold) //Draw a bunch of boxes
         {
             float frameWidth = Math.Min(Screen.width / 3, 150);
             float frameHeight = Math.Min(Screen.height / 2, 500);
@@ -134,20 +166,10 @@ public class TwineNode : MonoBehaviour
             GUILayout.Box(this.content, style);
             //            print(height);
 
-            if (isDecisionNode)
-            {
-                GUIStyle decisionHintStyle = new GUIStyle(style);
-                decisionHintStyle.fontStyle = FontStyle.BoldAndItalic;
-
-                if (!isOptionsGuiOpen)
-                {
-                    GUILayout.Box("Press TAB to progress in the story...", decisionHintStyle);
-                }
-                else
-                {
-                    GUILayout.Box("Press TAB to scroll, E to close, ENTER to choose", decisionHintStyle);
-                }
-            }
+            player.SetCanMove(true);
+            player.SetDrawsGUI(true);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
 
             if (this.isOptionsGuiOpen)
             {
@@ -167,7 +189,7 @@ public class TwineNode : MonoBehaviour
             GUI.EndGroup();
 
         }
-        else if (this.enabled && !this.isMinimized)
+        else if (this.enabled && !this.isMinimized) //Draw just this box
         {
             float frameWidth = Math.Min(Screen.width / 3, 350);
             float frameHeight = Math.Min(Screen.height / 2, 500);
@@ -178,20 +200,10 @@ public class TwineNode : MonoBehaviour
             style.fixedWidth = frameWidth;
             GUILayout.Box(this.content, style);
 
-            if (isDecisionNode)
-            {
-                GUIStyle decisionHintStyle = new GUIStyle(style);
-                decisionHintStyle.fontStyle = FontStyle.BoldAndItalic;
-
-                if (!isOptionsGuiOpen)
-                {
-                    GUILayout.Box("Press TAB to progress in the story...", decisionHintStyle);
-                }
-                else
-                {
-                    GUILayout.Box("Press TAB to scroll, E to close, ENTER to choose", decisionHintStyle);
-                }
-            }
+            player.SetCanMove(true);
+            player.SetDrawsGUI(true);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
 
             if (this.isOptionsGuiOpen)
             {
@@ -211,7 +223,7 @@ public class TwineNode : MonoBehaviour
             GUI.EndGroup();
 
         }
-        else if (this.enabled && this.isMinimized)
+        else if (this.enabled && this.isMinimized) // Don't draw any boxes, just a tiny icon
         {
 
             // Draw minimized GUI instead
@@ -250,7 +262,7 @@ public class TwineNode : MonoBehaviour
         {
             this.enabled = true;
             this.isMinimized = false;
-            this.TakeAction();
+            this.UpdateTwineVariables();
             this.isOptionsGuiOpen = false;
             this.DeactivateAllParents();
             TwineNodeList.Insert(insertIndex, this);
@@ -328,9 +340,9 @@ public class TwineNode : MonoBehaviour
 
 
     /// <summary>
-    /// Read the content of the node and make according actions
+    /// Change any twine variable values as appropriate
     /// </summary>
-    private void TakeAction()
+    private void UpdateTwineVariables()
     {
         if (globalVariables == null)
         {
@@ -365,16 +377,6 @@ public class TwineNode : MonoBehaviour
                 }
             }
         }
-
-        // else if (this.conditionals.Count != 0) {
-        // 	List<string[]> ifList = new List<string[]> (this.dicIf.Keys);
-        // 	foreach (string[] i in ifList) {
-        // 		if (string.Equals(variables [i[0]], i[1])) {
-        // 			show = dicIf [i].ToString();
-        // 		}
-        // 	}
-        // }
-
     }
 
     public void AddAssignment(string var, string value)
