@@ -157,13 +157,10 @@ public class TwineJsonParser
         foreach (string expression in expressions)
         {
             Debug.Log("Analyzing var exp...");
-            node.content += "\n" + expression;
             if (assignmentRegex.IsMatch(expression))
             {
                 string variable = variableRegex.Match(expression).Value;
                 string newValue = newValueRegex.Match(expression).Groups[1].Value;
-                node.content += "\n (assignment)";
-                node.content += "\n Set '" + variable + "' to '" + newValue + "'";
                 node.AddAssignment(variable, newValue);
                 Debug.Log("Adding assignment...");
             }
