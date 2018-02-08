@@ -220,7 +220,7 @@ public class TwineNode : MonoBehaviour
             if (this.isDecisionNode)
             {
                 FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
-                player.setWorldActive("Dialogue");
+                player.setWorldActive("DialogueOpen");
             }
             this.enabled = true;
             this.isMinimized = false;
@@ -265,7 +265,7 @@ public class TwineNode : MonoBehaviour
         if (this.isDecisionNode)
         {
             FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
-            player.setWorldActive("Dialogue");
+            player.setWorldActive("DialogueClose");
         }
         this.enabled = false;
         insertIndex = TwineNodeList.IndexOf(this);
