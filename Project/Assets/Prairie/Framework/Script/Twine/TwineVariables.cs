@@ -34,6 +34,17 @@ public class TwineVariables
         this.diction[var] = val;
     }
 
+    public string GetValue(string var)
+    {
+        if (diction.ContainsKey(var))
+        {
+            return diction[var];
+        } else
+        {
+            return "asdfkajsdfljasf";
+        }
+    }
+
 
     public static TwineVariables GetVariableObject()
     {

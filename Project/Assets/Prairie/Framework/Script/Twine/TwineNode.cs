@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 //using TwineVariables;
 using System;
+using System.Linq;
 
 [AddComponentMenu("Prairie/Utility/Twine Node")]
 public class TwineNode : MonoBehaviour
@@ -122,7 +123,6 @@ public class TwineNode : MonoBehaviour
 
     public void OnGUI()
     {
-        //FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
         if (isDecisionNode)
         {
             int frameWidth = Math.Min(Screen.width / 3, 500);
@@ -138,13 +138,6 @@ public class TwineNode : MonoBehaviour
             style.wordWrap = true;
             style.fixedWidth = frameWidth;
             GUILayout.Box(this.content, style);
-
-
-            //Cursor.visible = true;
-            //Cursor.lockState = CursorLockMode.None;
-            //player.setWorldActive("Dialogue");
-            //player.SetCanMove(false);
-            //player.SetDrawsGUI(false);
             for (int index = 0; index < this.validChildNames.Length; index++)
             {
                 if (GUILayout.Button(this.validChildNames[index]))
@@ -159,8 +152,6 @@ public class TwineNode : MonoBehaviour
         {
             float frameWidth = Math.Min(Screen.width / 3, 150);
             float frameHeight = Math.Min(Screen.height / 2, 500);
-            //            height += frameHeight/10;
-            //            this.heightAdded = true;
             int index = TwineNodeList.IndexOf(this);
             Rect frame = new Rect(10 + index * 150, 10, frameWidth, frameHeight);
             GUI.BeginGroup(frame);
@@ -168,28 +159,6 @@ public class TwineNode : MonoBehaviour
             style.wordWrap = true;
             style.fixedWidth = frameWidth;
             GUILayout.Box(this.content, style);
-            //            print(height);
-
-            //player.SetCanMove(true);
-            //player.SetDrawsGUI(true);
-            //Cursor.visible = false;
-            //Cursor.lockState = CursorLockMode.Locked;
-            //player.setWorldActive("Dialogue");
-
-            if (this.isOptionsGuiOpen)
-            {
-                // Draw list of buttons for the possible children nodes to visit:
-                GUIStyle optionButtonStyle = new GUIStyle(GUI.skin.button);
-                optionButtonStyle.fontStyle = FontStyle.Italic;
-                optionButtonStyle.wordWrap = true;
-
-                // Set highlighted button to have green text (this state is called `onNormal`):
-                optionButtonStyle.onNormal.textColor = Color.white;
-                // Set non-highlighted buttons to have grayed out text (state is called `normal`)
-                optionButtonStyle.normal.textColor = Color.gray;
-
-                selectedOptionIndex = GUILayout.SelectionGrid(selectedOptionIndex, this.validChildNames, 1, optionButtonStyle);
-            }
 
             GUI.EndGroup();
 
@@ -204,27 +173,6 @@ public class TwineNode : MonoBehaviour
             style.wordWrap = true;
             style.fixedWidth = frameWidth;
             GUILayout.Box(this.content, style);
-
-            //player.SetCanMove(true);
-            //player.SetDrawsGUI(true);
-            //Cursor.visible = false;
-            //Cursor.lockState = CursorLockMode.Locked;
-            //player.setWorldActive("Dialogue");
-
-            if (this.isOptionsGuiOpen)
-            {
-                // Draw list of buttons for the possible children nodes to visit:
-                GUIStyle optionButtonStyle = new GUIStyle(GUI.skin.button);
-                optionButtonStyle.fontStyle = FontStyle.Italic;
-                optionButtonStyle.wordWrap = true;
-
-                // Set highlighted button to have green text (this state is called `onNormal`):
-                optionButtonStyle.onNormal.textColor = Color.white;
-                // Set non-highlighted buttons to have grayed out text (state is called `normal`)
-                optionButtonStyle.normal.textColor = Color.gray;
-
-                selectedOptionIndex = GUILayout.SelectionGrid(selectedOptionIndex, this.validChildNames, 1, optionButtonStyle);
-            }
 
             GUI.EndGroup();
 
@@ -264,8 +212,11 @@ public class TwineNode : MonoBehaviour
     public bool Activate(GameObject interactor)
     {
         //        print(TwineNodeList);
+        print("Activate called on " + name);
+        print(this.enabled);
         if (!this.enabled && this.HasActiveParentNode())
         {
+            print("Activating " + name);
             if (this.isDecisionNode)
             {
                 FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
@@ -318,9 +269,7 @@ public class TwineNode : MonoBehaviour
         }
         this.enabled = false;
         insertIndex = TwineNodeList.IndexOf(this);
-        //        print(insertIndex);
         TwineNodeList.Remove(this);
-        //        print("deactivate" + TwineNodeList.Count);
     }
 
     //    public void AddToList()
@@ -329,7 +278,7 @@ public class TwineNode : MonoBehaviour
     //    }
 
     /// <summary>
-    /// Check if this Twine Node has an active parent node.
+    /// Check if this Twine Node has an active parent node.  Also only returns "True" if this node is a valid child of the parent.
     /// </summary>
     /// <returns><c>true</c>, if there is an active parent node, <c>false</c> otherwise.</returns>
     public bool HasActiveParentNode()
@@ -338,7 +287,11 @@ public class TwineNode : MonoBehaviour
         {
             if (parent.GetComponent<TwineNode>().enabled)
             {
-                return true;
+                string[] kids = parent.GetComponent<TwineNode>().validChildNames;
+                if (kids.Contains(name))
+                {
+                    return true;
+                }
             }
         }
 
@@ -350,9 +303,14 @@ public class TwineNode : MonoBehaviour
     /// </summary>
     private void DeactivateAllParents()
     {
+        print("Deactivating parents of " + name);
         foreach (GameObject parent in parents)
         {
-            parent.GetComponent<TwineNode>().Deactivate();
+            if(parent.GetComponent<TwineNode>().enabled)
+            {
+                print("Deactivating " + parent.GetComponent<TwineNode>().name);
+                parent.GetComponent<TwineNode>().Deactivate();
+            }
         }
     }
 
@@ -367,7 +325,6 @@ public class TwineNode : MonoBehaviour
         }
         if (assignmentVars != null)
         {
-            print("Node '" + this.name + "' has assignments!");
             for (int i = 0; i < assignmentVars.Count; i++)
             {
                 string varName = assignmentVars[i];
@@ -378,7 +335,7 @@ public class TwineNode : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Sets validChildren and validChildNames to include only the links that are allowed by the conditionals assigned to them.
     /// </summary>
     private void UpdateConditionalLinks()
     {
@@ -388,12 +345,9 @@ public class TwineNode : MonoBehaviour
             {
                 globalVariables = TwineVariables.GetVariableObject();
             }
-            print("Node '" + name + "' has conditions!");
-            Dictionary<string, string> variableDict = globalVariables.GetVariables();
 
             List<GameObject> checkedChildren = new List<GameObject>();
             List<string> checkedChildNames = new List<string>();
-
             for (int index = 0; index < childNames.Length; index++)
             {
                 if (!conditionalLinks.Contains(childNames[index]))
@@ -405,14 +359,13 @@ public class TwineNode : MonoBehaviour
                     string linkName = childNames[index];
                     int condIndex = conditionalLinks.IndexOf(linkName);
                     string varName = conditionalVars[condIndex];
-                    if (variableDict[varName] == conditionalVals[condIndex])
+                    if (globalVariables.GetValue(varName) == conditionalVals[condIndex])
                     {
                         checkedChildNames.Add(childNames[index]);
                         checkedChildren.Add(children[index]);
                     }
                 }
             }
-
             validChildNames = checkedChildNames.ToArray();
             validChildren = checkedChildren.ToArray();
         } else
@@ -424,7 +377,6 @@ public class TwineNode : MonoBehaviour
 
     public void AddAssignment(string var, string value)
     {
-        Debug.Log("Add Assignment");
         if (assignmentVars == null)
         {
             assignmentVars = new List<string>();
