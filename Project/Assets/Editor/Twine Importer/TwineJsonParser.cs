@@ -137,7 +137,6 @@ public class TwineJsonParser
         return strings;
     }
 
-    //TODO: Finish
     /// <summary>
     /// Sets the 
     /// </summary>
@@ -193,7 +192,7 @@ public class TwineJsonParser
             JSONNode nodeLinks = jsonNode["links"];
 
             twineNode.children = new GameObject[nodeLinks.Count];
-            twineNode.childNames = new string[nodeLinks.Count];
+            twineNode.linkNames = new string[nodeLinks.Count];
 
             for (int i = 0; i < nodeLinks.Count; i++)
             {
@@ -206,12 +205,11 @@ public class TwineJsonParser
 
                 // Set link as a child, and remember the name.
                 twineNode.children[i] = linkDestination;
-                twineNode.childNames[i] = linkName;
+                twineNode.linkNames[i] = linkName;
             }
         }
     }
 
-    //TODO:  Update this.  At present, it just cuts everything off after the first single open bracket.  Bad.
     /// <summary>
     /// Returns the text of a node without links or variable expressions
     /// </summary>

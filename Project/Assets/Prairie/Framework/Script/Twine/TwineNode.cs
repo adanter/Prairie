@@ -19,9 +19,9 @@ public class TwineNode : MonoBehaviour
     public string show = "";
     public GameObject[] children;
     [HideInInspector]
-    public string[] childNames;
+    public string[] linkNames;
     public GameObject[] validChildren;
-    public string[] validChildNames;
+    public string[] validLinkNames;
     public List<GameObject> parents = new List<GameObject>();
     public bool isDecisionNode;
     public bool isConditionNode;
@@ -138,9 +138,9 @@ public class TwineNode : MonoBehaviour
             style.wordWrap = true;
             style.fixedWidth = frameWidth;
             GUILayout.Box(this.content, style);
-            for (int index = 0; index < this.validChildNames.Length; index++)
+            for (int index = 0; index < this.validLinkNames.Length; index++)
             {
-                if (GUILayout.Button(this.validChildNames[index]))
+                if (GUILayout.Button(this.validLinkNames[index]))
                 {
                     this.ActivateChildAtIndex(index);
                 }
@@ -287,10 +287,13 @@ public class TwineNode : MonoBehaviour
         {
             if (parent.GetComponent<TwineNode>().enabled)
             {
-                string[] kids = parent.GetComponent<TwineNode>().validChildNames;
-                if (kids.Contains(name))
+                GameObject[] validSiblings = parent.GetComponent<TwineNode>().validChildren;
+                foreach (GameObject sibling in validSiblings)
                 {
-                    return true;
+                    if (name == sibling.name)
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -348,29 +351,29 @@ public class TwineNode : MonoBehaviour
 
             List<GameObject> checkedChildren = new List<GameObject>();
             List<string> checkedChildNames = new List<string>();
-            for (int index = 0; index < childNames.Length; index++)
+            for (int index = 0; index < linkNames.Length; index++)
             {
-                if (!conditionalLinks.Contains(childNames[index]))
+                if (!conditionalLinks.Contains(linkNames[index]))
                 {
-                    checkedChildNames.Add(childNames[index]);
+                    checkedChildNames.Add(linkNames[index]);
                     checkedChildren.Add(children[index]);
                 } else
                 {
-                    string linkName = childNames[index];
+                    string linkName = linkNames[index];
                     int condIndex = conditionalLinks.IndexOf(linkName);
                     string varName = conditionalVars[condIndex];
                     if (globalVariables.GetValue(varName) == conditionalVals[condIndex])
                     {
-                        checkedChildNames.Add(childNames[index]);
+                        checkedChildNames.Add(linkNames[index]);
                         checkedChildren.Add(children[index]);
                     }
                 }
             }
-            validChildNames = checkedChildNames.ToArray();
+            validLinkNames = checkedChildNames.ToArray();
             validChildren = checkedChildren.ToArray();
         } else
         {
-            validChildNames = childNames;
+            validLinkNames = linkNames;
             validChildren = children;
         }
     }
