@@ -45,9 +45,6 @@ public class Annotation : Interaction
 	// Journal option
 	public bool addToJournal = true;
 
-    private bool active = false;
-
-    private GUIStyle fullStyle;
     private GUIStyle summaryStyle;
     
     private Vector2 scrollPosition;
@@ -67,14 +64,6 @@ public class Annotation : Interaction
         scrollPosition = new Vector2(0, 0);
 
         rectangle = new Rect(BOX_X, BOX_Y, BOX_WIDTH, BOX_HEIGHT);
-
-        //setting up style for text
-        fullStyle = new GUIStyle();
-        fullStyle.wordWrap = true;
-        fullStyle.richText = true;
-        fullStyle.normal.textColor = Color.white;
-        fullStyle.padding.bottom = 15;
-        fullStyle.padding.top = 15;
 
         images = new List<Texture2D>();
 
@@ -104,7 +93,6 @@ public class Annotation : Interaction
     {
         if (importType != (int)ImportTypes.NONE)
         {
-            active = true;
             FirstPersonInteractor player = this.GetPlayer();
             if (player != null)
             {
@@ -115,35 +103,14 @@ public class Annotation : Interaction
 				if (addToJournal && annotationType == (int)AnnotationTypes.SUMMARY) {
 					player.GetComponentInChildren<Journal> ().AddToJournal (this);
 				}
+
+				// Display full annotation
+				FullAnnotationGui annotationGui = player.GetComponentInChildren<FullAnnotationGui> ();
+
+				if (!annotationGui.isUIActive ()) {
+					annotationGui.ActivateGui (this);
+				}
             }
-        }
-        
-    }
-
-    void OnGUI()
-    {
-        if (active)
-        {
-            //Allow the player to see and move the cursor (so they can scroll)
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-
-            //hacky way to increase the opacity of the background
-            //you would think this would be simple
-            //it isn't simple
-            GUI.Box(rectangle, Texture2D.blackTexture);
-            GUI.Box(rectangle, Texture2D.blackTexture);
-            GUI.Box(rectangle, Texture2D.blackTexture);
-
-            GUI.BeginGroup(new Rect(BOX_X + 10, BOX_Y, BOX_WIDTH, BOX_HEIGHT));
-
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(BOX_WIDTH - 10),
-                GUILayout.Height(BOX_HEIGHT));
-
-            DisplayAnnotation();
-
-            GUILayout.EndScrollView();
-            GUI.EndGroup();
         }
     }
 
@@ -179,68 +146,30 @@ public class Annotation : Interaction
         }
     }
 
-    /// <summary>
-    /// Displays then annotation text and images
-    /// </summary>
-    private void DisplayAnnotation()
-    {
-        for (int i = 0; i < Math.Max(images.Count, content.parsedText.Count); i++)
-        {
-            if (i < content.parsedText.Count && content.parsedText[i] != "")
-            {
-                GUILayout.Label(new GUIContent(content.parsedText[i]), fullStyle, GUILayout.MaxWidth(BOX_WIDTH - 40), GUILayout.ExpandHeight(true));
-            }
-
-            if (i < images.Count)
-            {
-                DisplayImage(images[i]);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Formats and displays a texture
-    /// </summary>
-    /// <param name="tex">Texture to display</param>
-    void DisplayImage(Texture tex)
-    {
-        if (tex != null)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (tex.width > BOX_WIDTH - 40)
-            {
-                //resize image if it is wider than the scrollbox
-                float newHeight = ((BOX_WIDTH - 40) / tex.width) * ((float)tex.height);
-                GUILayout.Label(new GUIContent(tex), GUILayout.Width(BOX_WIDTH - 40), GUILayout.Height(newHeight));
-            }
-            else
-            {
-                GUILayout.Label(new GUIContent(tex));
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-        }
-    }
-
-
     void Update()
     {
-        if (active)
-        {
-            if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Escape))
-            {
-                active = false;
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
-                
-				FirstPersonInteractor player = this.GetPlayer ();
-				if (player != null) {
+		FirstPersonInteractor player = this.GetPlayer ();
+		if (player != null) {
+			FullAnnotationGui annotationGui = player.GetComponentInChildren<FullAnnotationGui> ();
+			if (annotationGui.isUIActive()) {
+
+				if (Input.GetKey (KeyCode.Q) || Input.GetKey (KeyCode.Escape)) {
+					annotationGui.DeactivateGui ();
+
+					Cursor.visible = false;
+					Cursor.lockState = CursorLockMode.Locked;
+
 					player.SetCanMove (true);
 					player.SetDrawsGUI (true);
+				} else {
+					Cursor.visible = true;
+					Cursor.lockState = CursorLockMode.None;
+
+					player.SetCanMove (false);
+					player.SetDrawsGUI (false);
 				}
-            }
-        }
+			}
+		}
     }
 
 	void OnTriggerEnter(Collider other)
