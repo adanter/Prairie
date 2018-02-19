@@ -5,6 +5,7 @@ using System.Collections;
 public abstract class Interaction : MonoBehaviour
 {
 	public bool repeatable = true;
+	public bool objectInteractable = false;
 
 	[HideInInspector]
     public GameObject rootInteractor;

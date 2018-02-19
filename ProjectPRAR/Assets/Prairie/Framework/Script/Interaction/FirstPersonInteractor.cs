@@ -251,13 +251,12 @@ public class FirstPersonInteractor : MonoBehaviour
 		
 		foreach (Interaction i in this.highlightedObject.GetComponents<Interaction> ())
 		{
-			if (i is Annotation || i is Inventory || i is InventoryInteraction || i is Carry)
+			if (i is Annotation || i is Inventory || i is InventoryInteraction || i is Carry || i.objectInteractable == true)
 			{
 				// special cases, handled by 'AttemptReadAnnotation', 
 				// 'AttemptInteractInventory', AttemptAddToInventory', 'AttemptCarry' 
 				continue;
 			}
-
 			if (i.enabled)
 			{ 
 				i.Interact (this.gameObject);		
