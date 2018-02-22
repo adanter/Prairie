@@ -234,7 +234,7 @@ public class FirstPersonInteractor : MonoBehaviour
 		// automatically trigger area we're now inside of's interactions
 		foreach (Interaction i in inside.GetComponents<Interaction> ())
 		{
-			if (!(i is Annotation))
+			if (!(i is Annotation) && !(i.objectInteractable))
 			{
 				i.Interact (this.gameObject);
 			}
@@ -251,7 +251,7 @@ public class FirstPersonInteractor : MonoBehaviour
 		
 		foreach (Interaction i in this.highlightedObject.GetComponents<Interaction> ())
 		{
-			if (i is Annotation || i is Inventory || i is InventoryInteraction || i is Carry || i.objectInteractable == true)
+			if (i is Annotation || i is Inventory || i is InventoryInteraction || i is Carry || i.objectInteractable)
 			{
 				// special cases, handled by 'AttemptReadAnnotation', 
 				// 'AttemptInteractInventory', AttemptAddToInventory', 'AttemptCarry' 
@@ -259,6 +259,7 @@ public class FirstPersonInteractor : MonoBehaviour
 			}
 			if (i.enabled)
 			{ 
+				Debug.Log (i.objectInteractable);
 				i.Interact (this.gameObject);		
 			} 
 		}
