@@ -32,6 +32,7 @@ public class TwineNode : MonoBehaviour
     public GameObject[] validChildren;
     public string[] validLinkNames;
     public List<GameObject> parents = new List<GameObject>();
+    public bool isStartNode;
     public bool isDecisionNode;
     public bool isConditionNode;
 
@@ -56,6 +57,23 @@ public class TwineNode : MonoBehaviour
     private static bool fanfold = true;
     public static string storyTitle = "";
 
+    private void Awake()
+    {
+        if (isStartNode)
+        {
+            enabled = true;
+        }
+    }
+
+    private void Start()
+    {
+        if (isStartNode)
+        {
+            FirstPersonInteractor interactor = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+            GameObject interactorObject = interactor.gameObject;
+            this._Activate(interactorObject);
+        }
+    }
 
     void Update()
     {
@@ -233,33 +251,36 @@ public class TwineNode : MonoBehaviour
     /// <param name="interactor">The interactor.</param>
     public bool Activate(GameObject interactor)
     {
-        //        print(TwineNodeList);
-        print("Activate called on " + name);
         print(this.enabled);
         if (!this.enabled && this.HasActiveParentNode())
         {
-            print("Activating " + name);
-            if (this.isDecisionNode)
-            {
-                FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
-                player.setWorldActive("DialogueOpen");
-            }
-            this.enabled = true;
-            this.isMinimized = false;
-            this.RunVariableAssignments();
-            this.UpdateConditionalLinks();
-            //            this.isOptionsGuiOpen = false;
+            this._Activate(interactor);
 
-            this.DeactivateAllParents();
             TwineNodeList.Insert(insertIndex, this);
-            //            TwineNodeList.Add(this);
             visibleNodeIndex = TwineNodeList.IndexOf(this);
-            this.StartInteractions(interactor);
-
             return true;
         }
-
         return false;
+    }
+
+    /// <summary>
+    /// Activate this TwineNode immediately, without any checks beforehand.
+    /// </summary>
+    /// <param name="interactor"></param>
+    private void _Activate(GameObject interactor)
+    {
+        if (this.isDecisionNode)
+        {
+            FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+            player.setWorldActive("DialogueOpen");
+        }
+        this.enabled = true;
+        this.isMinimized = false;
+        this.RunVariableAssignments();
+        this.UpdateConditionalLinks();
+
+        this.DeactivateAllParents();
+        this.StartInteractions(interactor);
     }
 
     /// <summary>
@@ -293,11 +314,6 @@ public class TwineNode : MonoBehaviour
         insertIndex = TwineNodeList.IndexOf(this);
         TwineNodeList.Remove(this);
     }
-
-    //    public void AddToList()
-    //    {
-    //        TwineNodeList.Add(this);
-    //    }
 
     /// <summary>
     /// Check if this Twine Node has an active parent node.  Also only returns "True" if this node is a valid child of the parent.
@@ -402,21 +418,59 @@ public class TwineNode : MonoBehaviour
                     // Operation of the condition - e.g. "=", "!="
                     string operation = conditionalOp[condIndex];
                     // Truth value of the conditional
-                    bool conditionMet;
-                    if (operation == "=") 
+                    bool conditionMet = false;
+                    switch (operation)
                     {
-                        conditionMet = globalVariables.GetValue(varName) == conditionalVals[condIndex];
+                        // For equals and not equals, we compare the values
+                        // without caring if they can be converted to ints.
+                        case "=":
+                            conditionMet = globalVariables.GetValue(varName) == conditionalVals[condIndex];
+                            break;
+                        case "!=":
+                            conditionMet = !(globalVariables.GetValue(varName) == conditionalVals[condIndex]);
+                            break;
+                        default:
+                            // For greater-than/less-than-style comparisons, we
+                            // break and leave conditionMet as false unless both
+                            // values can be converted to ints.
+                            int val1;
+                            if (!Int32.TryParse(globalVariables.GetValue(varName), out val1)) break;
+                            int val2;
+                            if (!Int32.TryParse(conditionalVals[condIndex], out val2)) break;
+                            switch (operation)
+                            {
+                                case "<":
+                                    if (val1 < val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                case "<=":
+                                    if (val1 <= val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                case ">":
+                                    if (val1 > val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                case ">=":
+                                    if (val1 >= val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                default:
+                                    conditionMet = false;
+                                    Exception e = new Exception("Twine conditional has unknown operation");
+                                    throw e;
+                            }
+                            break;
                     }
-                    else if (operation == "!=")
-                    {
-                        conditionMet = !(globalVariables.GetValue(varName) == conditionalVals[condIndex]);
-                    }
-                    else
-                    {
-                        conditionMet = false;
-                        Exception e = new Exception("Twine conditional has unknown operation");
-                        throw e;
-                    }
+                    
                     //Debug.Log("Operation is " + operation);
                     //Debug.Log(globalVariables.GetValue(varName));
                     //Debug.Log(conditionalVals[condIndex]);
