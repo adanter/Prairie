@@ -49,7 +49,7 @@ public class TwineJsonParser
 
         foreach (JSONNode storyNode in parsedArray)
         {
-            GameObject twineNodeObject = MakeGameObjectFromStoryNode(storyNode);
+            GameObject twineNodeObject = MakeGameObjectFromStoryNode(storyNode, nameOfStory);
 
             // Bind this node to the parent "Story" object
             twineNodeObject.transform.SetParent(parent.transform);
@@ -88,7 +88,7 @@ public class TwineJsonParser
     /// </summary>
     /// <returns>GameObject of single node.</returns>
     /// <param name="nodeJSON">A Twine Node, in JSON format</param>
-    public static GameObject MakeGameObjectFromStoryNode(JSONNode nodeJSON)
+    public static GameObject MakeGameObjectFromStoryNode(JSONNode nodeJSON, string storyName)
     {
 #if UNITY_EDITOR
 
@@ -98,7 +98,7 @@ public class TwineJsonParser
 		// Save additional Twine data on a Twine component
 		TwineNode twineNode = nodeGameObject.GetComponent<TwineNode> ();
 		twineNode.pid = nodeJSON["pid"];
-		twineNode.name = nodeJSON["name"];
+		twineNode.name = storyName + nodeJSON["name"];
 
 		twineNode.tags = GetDequotedStringArrayFromJsonArray(nodeJSON["tags"]);
 
