@@ -9,27 +9,34 @@ public class PauseMenu : MonoBehaviour {
 	private bool showInventoryUI;
 	private FirstPersonInteractor playerScript;
 	private bool isTextHide = true;
+	private string HIDEUITAG = "HideUI";
+	private string PAUSEMENU = "Pause Menu";
+	private string OPTIONSMENU = "Options Menu";
+	private string KEYBINDINGS = "Keybindings";
+	private string PLAYER = "Player";
+	const string INVENTORYPANEL = "InventoryPanel";
+	private string MENUBUTTON = "escape";
 
 	// Use this for initialization
 	void Awake () {
 		open = false;
 		showInventoryUI = true;
-		gameObject.transform.Find("Pause Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Options Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Keybindings").gameObject.SetActive (false);
-		playerScript = (FirstPersonInteractor) GameObject.FindWithTag("Player").GetComponent(typeof(FirstPersonInteractor));
+		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(OPTIONSMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (false);
+		playerScript = (FirstPersonInteractor) GameObject.FindWithTag(PLAYER).GetComponent(typeof(FirstPersonInteractor));
 	}
 	
 	void Update(){
-		if (Input.GetKeyDown ("escape")) {
+		if (Input.GetKeyDown (MENUBUTTON)) {
 			//if (gameObject.transform.GetChild(0).gameObject.activeSelf == false) {
 			if (!open) {
-				gameObject.transform.Find("Pause Menu").gameObject.SetActive (true);
+				gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (true);
 				open = true;
 				//Time.timeScale = 0;
-				playerScript.setWorldActive("Pause Menu"); //WORKING HERE******************************************************************
+				playerScript.setWorldActive(PAUSEMENU); //WORKING HERE******************************************************************
 				//Cursor.visible = true;
-				GameObject.FindGameObjectsWithTag ("Player")[0].GetComponent<FirstPersonInteractor> ().enabled = false;
+				GameObject.FindGameObjectsWithTag (PLAYER)[0].GetComponent<FirstPersonInteractor> ().enabled = false;
 			} else {
 				resume ();
 
@@ -40,24 +47,24 @@ public class PauseMenu : MonoBehaviour {
 
 	public void resume(){
 		open = false;
-		gameObject.transform.Find("Pause Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Options Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Keybindings").gameObject.SetActive (false);
+		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(OPTIONSMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (false);
 		//Time.timeScale = 1;
 		//Cursor.visible = false;
-		playerScript.setWorldActive("Pause Menu");
-		GameObject.FindGameObjectsWithTag ("Player")[0].GetComponent<FirstPersonInteractor> ().enabled = true;
+		playerScript.setWorldActive(PAUSEMENU);
+		GameObject.FindGameObjectsWithTag (PLAYER)[0].GetComponent<FirstPersonInteractor> ().enabled = true;
 
 	}
 
 	public void showKeybindings(){
-		gameObject.transform.Find("Pause Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Keybindings").gameObject.SetActive (true);
+		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (true);
 	}
 		
 	//Turns the inventory opacity to 0 if button is pressed once, and to 106 if pressed agai (alpha value is a percentage)
 	public void hideShowInventoryUI(){
-		GameObject inventory = GameObject.Find("InventoryPanel");
+		GameObject inventory = GameObject.Find (INVENTORYPANEL);
 		if (showInventoryUI) {
 			showInventoryUI = false;
 			var noColor = inventory.GetComponent<Image>().color;
@@ -74,20 +81,22 @@ public class PauseMenu : MonoBehaviour {
 
 	//Changes the text of the Show/hide inventory UI buttom
 	public void changeShowHideText(){
-		GameObject UIelement = GameObject.FindGameObjectWithTag ("HideUI");
+		GameObject UIelement = GameObject.FindGameObjectWithTag (HIDEUITAG);
 		Text text = UIelement.GetComponentInChildren<Text> ();
+		string show = "Show Inventory UI";
+		string hide = "Hide Inventory UI";
 		if (isTextHide) {
-			text.text = "Show Inventory UI";
+			text.text = show;
 			isTextHide = false;
 		} else {
 			isTextHide = true;
-			text.text = "Hide Inventory UI";
+			text.text = hide;
 		}
 	}
 
 	public void options(){
-		gameObject.transform.Find("Pause Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Options Menu").gameObject.SetActive (true);
+		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(OPTIONSMENU).gameObject.SetActive (true);
 	}
 
 	public void quit(){
@@ -95,9 +104,9 @@ public class PauseMenu : MonoBehaviour {
 	}
 
 	public void backToMainMenu(){
-		gameObject.transform.Find("Pause Menu").gameObject.SetActive (true);
-		gameObject.transform.Find("Options Menu").gameObject.SetActive (false);
-		gameObject.transform.Find("Keybindings").gameObject.SetActive (false);
+		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (true);
+		gameObject.transform.Find(OPTIONSMENU).gameObject.SetActive (false);
+		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (false);
 	}
 
 
