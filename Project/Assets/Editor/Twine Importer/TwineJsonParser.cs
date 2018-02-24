@@ -110,6 +110,7 @@ public class TwineJsonParser
 		twineNode.isDecisionNode = (twineNode.tags != null && twineNode.tags.Contains (PRAIRIE_DECISION_TAG));
 		twineNode.isConditionNode = (twineNode.tags != null && twineNode.tags.Contains (PRAIRIE_CONDITION_TAG));
 
+
 		// Start all twine nodes as deactivated at first:
 		twineNode.Deactivate();
 
@@ -282,6 +283,7 @@ public class TwineJsonParser
     /// </summary>
     /// <returns>The content without children atached.</returns>
     /// <param name="content">Content with children attached.</param>
+
     public static string GetVisibleText(string content)
     {
         // Pattern for text surrounded by double parentheses or double brackets
