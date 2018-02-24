@@ -74,7 +74,8 @@ public class PauseMenu : MonoBehaviour {
 
 	//Changes the text of the Show/hide inventory UI buttom
 	public void changeShowHideText(){
-		Text text = GetComponentInChildren<Text> ();
+		GameObject UIelement = GameObject.FindGameObjectWithTag ("HideUI");
+		Text text = UIelement.GetComponentInChildren<Text> ();
 		if (isTextHide) {
 			text.text = "Show Inventory UI";
 			isTextHide = false;
