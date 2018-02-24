@@ -9,13 +9,13 @@ public class PauseMenu : MonoBehaviour {
 	private bool showInventoryUI;
 	private FirstPersonInteractor playerScript;
 	private bool isTextHide = true;
-	private string HIDEUITAG = "HideUI";
-	private string PAUSEMENU = "Pause Menu";
-	private string OPTIONSMENU = "Options Menu";
-	private string KEYBINDINGS = "Keybindings";
-	private string PLAYER = "Player";
-	const string INVENTORYPANEL = "InventoryPanel";
-	private string MENUBUTTON = "escape";
+	private const string HIDEUITAG = "HideUI";
+	private const string PAUSEMENU = "Pause Menu";
+	private const string OPTIONSMENU = "Options Menu";
+	private const string KEYBINDINGS = "Keybindings";
+	private const string PLAYER = "Player";
+	private const string INVENTORYPANEL = "InventoryPanel";
+	private const string MENUBUTTON = "escape";
 
 	// Use this for initialization
 	void Awake () {
@@ -26,16 +26,14 @@ public class PauseMenu : MonoBehaviour {
 		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (false);
 		playerScript = (FirstPersonInteractor) GameObject.FindWithTag(PLAYER).GetComponent(typeof(FirstPersonInteractor));
 	}
-	
+
+	//Looks for the menu button 
 	void Update(){
 		if (Input.GetKeyDown (MENUBUTTON)) {
-			//if (gameObject.transform.GetChild(0).gameObject.activeSelf == false) {
 			if (!open) {
 				gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (true);
 				open = true;
-				//Time.timeScale = 0;
-				playerScript.setWorldActive(PAUSEMENU); //WORKING HERE******************************************************************
-				//Cursor.visible = true;
+				playerScript.setWorldActive(PAUSEMENU);
 				GameObject.FindGameObjectsWithTag (PLAYER)[0].GetComponent<FirstPersonInteractor> ().enabled = false;
 			} else {
 				resume ();
@@ -45,18 +43,17 @@ public class PauseMenu : MonoBehaviour {
 
 	}
 
+	//Resumes the game, closes all pause menu UI elements
 	public void resume(){
 		open = false;
 		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (false);
 		gameObject.transform.Find(OPTIONSMENU).gameObject.SetActive (false);
 		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (false);
-		//Time.timeScale = 1;
-		//Cursor.visible = false;
 		playerScript.setWorldActive(PAUSEMENU);
 		GameObject.FindGameObjectsWithTag (PLAYER)[0].GetComponent<FirstPersonInteractor> ().enabled = true;
 
 	}
-
+		
 	public void showKeybindings(){
 		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (false);
 		gameObject.transform.Find(KEYBINDINGS).gameObject.SetActive (true);
@@ -103,6 +100,7 @@ public class PauseMenu : MonoBehaviour {
 		Application.Quit();
 	}
 
+	//Used for all the back buttons on the menu navigation
 	public void backToMainMenu(){
 		gameObject.transform.Find(PAUSEMENU).gameObject.SetActive (true);
 		gameObject.transform.Find(OPTIONSMENU).gameObject.SetActive (false);
