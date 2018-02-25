@@ -82,8 +82,6 @@ public class Annotation : Interaction
             FirstPersonInteractor player = this.GetPlayer();
             if (player != null)
             {
-                //player.SetCanMove(false);
-                //player.SetDrawsGUI(false);
 				player.setWorldActive ("Annotation");
 
 				// Add summary annotation log to journal
