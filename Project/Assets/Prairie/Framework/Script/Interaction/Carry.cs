@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Carry : PromptInteraction {
+public class Carry : Interaction {
 
 	private bool beingCarried;
 
