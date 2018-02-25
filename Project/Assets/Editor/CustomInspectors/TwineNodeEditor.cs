@@ -46,6 +46,15 @@ public class TwineNodeEditor : Editor {
 			node.isDecisionNode = _isDecisionNode;
 			node.objectsToTrigger = _objectsToTrigger;
 			node.content = _content;
+			node.objectsToEnable = _objectsToEnable;
+			node.objectsToRotate = _objectsToRotate;
+			node.objectsToTransform = _objectsToTransform;
+			node.trX = _trX;
+			node.trY = _trY;
+			node.trZ = _trZ;
+			node.rotX = _rotX;
+			node.rotY = _rotY;
+			node.rotZ = _rotZ;
 		}
 	}
 }
