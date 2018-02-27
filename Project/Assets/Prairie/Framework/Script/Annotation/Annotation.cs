@@ -82,8 +82,7 @@ public class Annotation : Interaction
             FirstPersonInteractor player = this.GetPlayer();
             if (player != null)
             {
-                player.SetCanMove(false);
-                player.SetDrawsGUI(false);
+				player.setWorldActive ("Annotation");
 
 				// Add summary annotation log to journal
 				if (addToJournal && annotationType == (int)AnnotationTypes.SUMMARY) {
@@ -107,20 +106,9 @@ public class Annotation : Interaction
 			FullAnnotationGui annotationGui = player.GetComponentInChildren<FullAnnotationGui> ();
 			if (annotationGui.isUIActive()) {
 
-				if (Input.GetKey (KeyCode.Q) || Input.GetKey (KeyCode.Escape)) {
+				if (Input.GetKey (KeyCode.Q)) {
 					annotationGui.DeactivateGui ();
-
-					Cursor.visible = false;
-					Cursor.lockState = CursorLockMode.Locked;
-
-					player.SetCanMove (true);
-					player.SetDrawsGUI (true);
-				} else {
-					Cursor.visible = true;
-					Cursor.lockState = CursorLockMode.None;
-
-					player.SetCanMove (false);
-					player.SetDrawsGUI (false);
+					player.setWorldActive("Annotation");
 				}
 			}
 		}

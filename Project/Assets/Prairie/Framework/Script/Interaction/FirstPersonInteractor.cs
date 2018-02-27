@@ -25,6 +25,7 @@ public class FirstPersonInteractor : MonoBehaviour
 	public bool journalOpen = false;
 	public bool inventoryAccess = false;
     public int dialogue = 0;
+	public bool annotationOpen = false;
 
 	// Control-related
 
@@ -69,6 +70,7 @@ public class FirstPersonInteractor : MonoBehaviour
 		{
 			// enable right click for annotation
 			this.AttemptReadAnnotation ();
+
 		}
 
 		if (Input.GetKeyDown (KeyCode.I)) {
@@ -198,6 +200,13 @@ public class FirstPersonInteractor : MonoBehaviour
 				inventoryAccess = true;
 			}
 		}
+		if (pauseType == "Annotation") {
+			if (annotationOpen) {
+				annotationOpen = false;
+			} else {
+				annotationOpen = true;
+			}
+		}
 
         if (pauseType == "DialogueOpen")
         {
@@ -208,7 +217,7 @@ public class FirstPersonInteractor : MonoBehaviour
             dialogue -= 1;
         }
 
-        if (!startMenuOpen && !journalOpen && !inventoryAccess && dialogue == 0) {
+		if (!startMenuOpen && !journalOpen && !inventoryAccess && dialogue == 0 && !annotationOpen) {
 			Time.timeScale = 1;
 			Cursor.visible = false;
 			Cursor.lockState = CursorLockMode.Locked;
