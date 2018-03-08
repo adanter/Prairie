@@ -56,7 +56,9 @@ public class FirstPersonInteractor : MonoBehaviour
 		if (this.drawsGUI)
 		{
 			// draw overlay UI on highlighted object
-			drawSummaryAnnotation ();
+			if (this.annotationsEnabled) {
+				drawSummaryAnnotation ();
+			}
 			drawPrompt ();
 		}
 
@@ -108,7 +110,7 @@ public class FirstPersonInteractor : MonoBehaviour
 		if (this.highlightedObject != null) {
 			// draw potential stub on highlighted annotation object
 			Annotation annotation = this.highlightedObject.GetComponent<Annotation> ();
-			if (annotation != null && this.annotationsEnabled && 
+			if (annotation != null && annotation.enabled && this.annotationsEnabled && 
 				annotation.annotationType == (int)AnnotationTypes.SUMMARY) {
 				// draw UI if it is inactive or if the content changes
 				if (!sa.isUIActive () || !annotation.summary.Equals(sa.GetCurrentText())) {

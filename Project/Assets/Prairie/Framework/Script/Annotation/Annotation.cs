@@ -115,9 +115,9 @@ public class Annotation : Interaction
 
 	void OnTriggerEnter(Collider other)
 	{
-        if (this.annotationType != (int)AnnotationTypes.AREA)
+		if (!this.enabled || this.annotationType != (int)AnnotationTypes.AREA)
         {
-            // do not act as area annotation if not specified as one
+            // do not act as area annotation if not enabled or not specified as one
             return;
         }
 
@@ -147,9 +147,9 @@ public class Annotation : Interaction
 
 	void OnTriggerExit(Collider other)
 	{
-        if (this.annotationType != (int)AnnotationTypes.AREA)
+		if (!this.enabled || this.annotationType != (int)AnnotationTypes.AREA)
         {
-            // do not act as area annotation if not specified as one
+			// do not act as area annotation if not enabled or not specified as one
             return;
         }
 
