@@ -82,8 +82,6 @@ public class Annotation : Interaction
             FirstPersonInteractor player = this.GetPlayer();
             if (player != null)
             {
-				player.setWorldActive ("Annotation");
-
 				// Add summary annotation log to journal
 				if (addToJournal && annotationType == (int)AnnotationTypes.SUMMARY) {
 					player.GetComponentInChildren<Journal> ().AddToJournal (this);
@@ -93,6 +91,7 @@ public class Annotation : Interaction
 				FullAnnotationGui annotationGui = player.GetComponentInChildren<FullAnnotationGui> ();
 
 				if (!annotationGui.isUIActive ()) {
+					player.setWorldActive ("Annotation");
 					annotationGui.ActivateGui (this);
 				}
             }
