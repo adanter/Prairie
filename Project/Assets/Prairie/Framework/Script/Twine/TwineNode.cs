@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-//using TwineVariables;
+using System.Collections;
 using System;
 using System.Linq;
 
@@ -9,6 +9,15 @@ public class TwineNode : MonoBehaviour
 {
 
     public GameObject[] objectsToTrigger;
+    public GameObject[] objectsToEnable;
+ 	public GameObject[] objectsToRotate;
+ 	public int rotX = 0;
+ 	public int rotY = 0;
+ 	public int rotZ = 0;
+ 	public GameObject[] objectsToTransform;
+ 	public int trX = 0;
+ 	public int trY = 0;
+ 	public int trZ = 0;
 
     [HideInInspector]
     public string pid;
@@ -23,6 +32,7 @@ public class TwineNode : MonoBehaviour
     public GameObject[] validChildren;
     public string[] validLinkNames;
     public List<GameObject> parents = new List<GameObject>();
+    public bool isStartNode;
     public bool isDecisionNode;
     public bool isConditionNode;
 
@@ -32,6 +42,7 @@ public class TwineNode : MonoBehaviour
     public List<string> conditionalVars;
     public List<string> conditionalVals;
     public List<string> conditionalLinks;
+    public List<string> conditionalOp;
 
     public TwineVariables globalVariables;
 
@@ -39,44 +50,66 @@ public class TwineNode : MonoBehaviour
     private bool isOptionsGuiOpen = false;
 
     private int selectedOptionIndex = 0;
+    
+    public int insertIndex = -1;
+    private float vScrollBarValue;
+    public Vector2 scrollPosition = new Vector2(0, 0);
+    private string innerText;
 
     public static List<TwineNode> TwineNodeList = new List<TwineNode>();
     public static int visibleNodeIndex = 0;
-    public static int insertIndex = -1;
+    private static bool allMinimized = false;
     private static bool fanfold = true;
     public static string storyTitle = "";
 
+    private void Awake()
+    {
+        if (isStartNode)
+        {
+            enabled = true;
+        }
+    }
+
+    private void Start()
+    {
+        if (isStartNode)
+        {
+            FirstPersonInteractor interactor = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+            GameObject interactorObject = interactor.gameObject;
+            this._Activate(interactorObject);
+        }
+        StartCoroutine(Example());
+    }
+
+    /// <summary>
+    /// Check if TwineNode has no children. If it
+    ///     doesn't, wait 5 seconds and deactivate.
+    /// </summary>
+    IEnumerator Example()
+    {
+        if (this.children.Length == 0) {
+            yield return new WaitForSeconds(5);
+            this.Deactivate();
+        }
+    }
 
     void Update()
     {
         UpdateConditionalLinks();
         if (this.enabled)
         {
-            if (Input.GetKeyDown(KeyCode.C) && TwineNodeList.IndexOf(this) == 0)
+            if (Input.GetKeyDown(KeyCode.C) && TwineNodeList.IndexOf(this) == 0  && allMinimized == false)
             {
                 fanfold = !fanfold;
             }
-            //            if (visibleNodeIndex == null) {
-            //                visibleNodeIndex = 0;
-            //            }
-            //            print(visibleNodeIndex);
-            //            print(TwineNodeList.IndexOf(this));
+            if (Input.GetKeyDown (KeyCode.M) && TwineNodeList.IndexOf(this) == 0){
+                allMinimized = !allMinimized;
+            }
             if (!TwineNodeList.Contains(this))
             {
                 TwineNodeList.Add(this);
-                //                storyTitle = this.name;
-                //                print(this.name);
-                //                insertIndex = TwineNodeList.IndexOf(this);
-                //                print("printing");
-                //                print(TwineNodeList.Count);
-                //                    foreach (TwineNode item in TwineNodeList) {
-                //                        print(item.name);
-                //                    }
-                //                    if (TwineNodeList.Count > 1){
-                //                        this.isMinimized = true;
-                //                    }
             }
-            if (Input.GetKeyDown(KeyCode.Tab) && TwineNodeList.IndexOf(this) == 0)
+            if (Input.GetKeyDown(KeyCode.Tab) && TwineNodeList.IndexOf(this) == 0 && allMinimized == false && fanfold == false)
             {
                 if (visibleNodeIndex == TwineNodeList.Count - 1)
                 {
@@ -95,16 +128,6 @@ public class TwineNode : MonoBehaviour
             {
                 this.isMinimized = true;
             }
-            //            if (Input.GetKeyDown (KeyCode.Alpha0)) {
-            //				visibleNodeIndex = 0;
-            //			}
-            //            if (Input.GetKeyDown (KeyCode.Alpha1)) {
-            //				visibleNodeIndex = 1;
-            //			}
-            //			if (Input.GetKeyDown (KeyCode.Q) {
-            //				this.isMinimized = ;
-            //			}
-
             if (this.isDecisionNode)
             {
                 this.isOptionsGuiOpen = true;
@@ -116,7 +139,6 @@ public class TwineNode : MonoBehaviour
                 // check child node name to match platform name
                 // activate childnode
                 this.ActivateChildAtIndex(0);
-                Debug.Log("This is a Condition Node: " + this.name);
             }
         }
     }
@@ -148,46 +170,46 @@ public class TwineNode : MonoBehaviour
 
             GUI.EndGroup();
         }
-        else if (fanfold) //Draw a bunch of boxes
-        {
-            float frameWidth = Math.Min(Screen.width / 3, 150);
-            float frameHeight = Math.Min(Screen.height / 2, 500);
-            int index = TwineNodeList.IndexOf(this);
-            Rect frame = new Rect(10 + index * 150, 10, frameWidth, frameHeight);
-            GUI.BeginGroup(frame);
-            GUIStyle style = new GUIStyle(GUI.skin.box);
-            style.wordWrap = true;
-            style.fixedWidth = frameWidth;
-            GUILayout.Box(this.content, style);
+        else if ((fanfold) && (allMinimized == false)) {
+                float frameWidth = Math.Min(Screen.width / 5, 200);
+                float frameHeight = 80;
+                if (TwineNodeList.Count() > 0){
+                    frameHeight = Math.Min(Screen.height / (TwineNodeList.Count()), 80);
+                }
+                int index = TwineNodeList.IndexOf(this);
+                Rect frame = new Rect (10, 10+index*80, frameWidth, frameHeight);
+                GUIStyle style = new GUIStyle (GUI.skin.box);
+                style.wordWrap = true;
+                style.fixedWidth = frameWidth-10;
+                GUI.BeginGroup(new Rect(20, 10+index*frameHeight, frameWidth + 10, frameHeight));
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(frameWidth + 10), GUILayout.Height(frameHeight));
+                content = content.TrimEnd();
+                GUILayout.Label(new GUIContent(this.content), style, GUILayout.Width(frameWidth - 20), GUILayout.ExpandHeight(true));
+                GUILayout.EndScrollView();
+                GUI.EndGroup ();
 
-            GUI.EndGroup();
+            }
+            else if (this.enabled && !this.isMinimized && !allMinimized) {
+                float frameWidth = Math.Min(Screen.width / 3, 350);
+                float frameHeight = Math.Min(Screen.height / 2, 500);
+                Rect frame = new Rect (10, 10, frameWidth, frameHeight);
+                GUI.BeginGroup (frame);
+                GUIStyle style = new GUIStyle (GUI.skin.box);
+                style.wordWrap = true;
+                style.fixedWidth = frameWidth;
+                GUILayout.Box (this.content, style);
+                GUI.EndGroup ();
+
+            } else if (this.enabled && this.isMinimized) {
+
+                // Draw minimized GUI instead
+                Rect frame = new Rect (10, 10, 10, 10);
+
+                GUI.Box (frame, "");
+
+            }
 
         }
-        else if (this.enabled && !this.isMinimized) //Draw just this box
-        {
-            float frameWidth = Math.Min(Screen.width / 3, 350);
-            float frameHeight = Math.Min(Screen.height / 2, 500);
-            Rect frame = new Rect(10, 10, frameWidth, frameHeight);
-            GUI.BeginGroup(frame);
-            GUIStyle style = new GUIStyle(GUI.skin.box);
-            style.wordWrap = true;
-            style.fixedWidth = frameWidth;
-            GUILayout.Box(this.content, style);
-
-            GUI.EndGroup();
-
-        }
-        else if (this.enabled && this.isMinimized) // Don't draw any boxes, just a tiny icon
-        {
-
-            // Draw minimized GUI instead
-            Rect frame = new Rect(10, 10, 10, 10);
-
-            GUI.Box(frame, "");
-
-        }
-
-    }
 
     /// <summary>
     /// Trigger the interactions associated with this Twine Node.
@@ -201,6 +223,18 @@ public class TwineNode : MonoBehaviour
             {
                 gameObject.InteractAll(interactor);
             }
+            foreach (GameObject gameObject in objectsToEnable)
+            {
+                gameObject.SetActive(!gameObject.activeSelf);
+            }
+            foreach (GameObject gameObject in objectsToRotate)
+            {
+                gameObject.transform.Rotate(rotX, rotY, rotZ);
+            }
+            foreach (GameObject gameObject in objectsToTransform)
+            {
+                gameObject.transform.Translate(trX, trY, trZ);
+            }
         }
     }
 
@@ -211,33 +245,40 @@ public class TwineNode : MonoBehaviour
     /// <param name="interactor">The interactor.</param>
     public bool Activate(GameObject interactor)
     {
-        //        print(TwineNodeList);
-        print("Activate called on " + name);
-        print(this.enabled);
         if (!this.enabled && this.HasActiveParentNode())
         {
-            print("Activating " + name);
-            if (this.isDecisionNode)
+            foreach (GameObject parent in parents)
             {
-                FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
-                player.setWorldActive("DialogueOpen");
+                if (parent.GetComponent<TwineNode>().enabled)
+                {
+                    insertIndex = TwineNodeList.IndexOf(parent.GetComponent<TwineNode>());
+                }
             }
-            this.enabled = true;
-            this.isMinimized = false;
-            this.RunVariableAssignments();
-            this.UpdateConditionalLinks();
-            //            this.isOptionsGuiOpen = false;
-
-            this.DeactivateAllParents();
             TwineNodeList.Insert(insertIndex, this);
-            //            TwineNodeList.Add(this);
             visibleNodeIndex = TwineNodeList.IndexOf(this);
-            this.StartInteractions(interactor);
-
+            this._Activate(interactor);
             return true;
         }
-
         return false;
+    }
+
+    /// <summary>
+    /// Activate this TwineNode immediately, without any checks beforehand.
+    /// </summary>
+    /// <param name="interactor"></param>
+    private void _Activate(GameObject interactor)
+    {
+        if (this.isDecisionNode)
+        {
+            FirstPersonInteractor player = (FirstPersonInteractor)FindObjectOfType(typeof(FirstPersonInteractor));
+            player.setWorldActive("DialogueOpen");
+        }
+        this.enabled = true;
+        this.isMinimized = false;
+        this.RunVariableAssignments();
+        this.UpdateConditionalLinks();
+        this.DeactivateAllParents();
+        this.StartInteractions(interactor);
     }
 
     /// <summary>
@@ -268,14 +309,8 @@ public class TwineNode : MonoBehaviour
             player.setWorldActive("DialogueClose");
         }
         this.enabled = false;
-        insertIndex = TwineNodeList.IndexOf(this);
         TwineNodeList.Remove(this);
     }
-
-    //    public void AddToList()
-    //    {
-    //        TwineNodeList.Add(this);
-    //    }
 
     /// <summary>
     /// Check if this Twine Node has an active parent node.  Also only returns "True" if this node is a valid child of the parent.
@@ -306,33 +341,45 @@ public class TwineNode : MonoBehaviour
     /// </summary>
     private void DeactivateAllParents()
     {
-        print("Deactivating parents of " + name);
         foreach (GameObject parent in parents)
         {
             if(parent.GetComponent<TwineNode>().enabled)
             {
-                print("Deactivating " + parent.GetComponent<TwineNode>().name);
                 parent.GetComponent<TwineNode>().Deactivate();
             }
         }
     }
 
     /// <summary>
-    /// Change any twine variable values as appropriate
+    /// Change any twine variable values as appropriate.  This includes 
+    /// addition as well as assignment.
     /// </summary>
     private void RunVariableAssignments()
     {
-        if (globalVariables == null)
-        {
-            globalVariables = TwineVariables.GetVariableObject();
-        }
         if (assignmentVars != null)
         {
+            if (globalVariables == null)
+            {
+                globalVariables = TwineVariables.GetVariableObject();
+            }
+            // This character is a marker that says to use addition rather than
+            // assignment.
+            string plusSign = "+";
+
             for (int i = 0; i < assignmentVars.Count; i++)
             {
                 string varName = assignmentVars[i];
                 string varValue = assignmentVals[i];
-                globalVariables.AssignValue(varName, varValue);
+                if (!varValue.Contains(plusSign))
+                {
+                    globalVariables.AssignValue(varName, varValue);
+                }
+                else
+                {
+                    // Remove the "+" marker and increment value
+                    varValue = varValue.Substring(1);
+                    globalVariables.IncrementValue(varName, varValue);
+                }
             }
         }
     }
@@ -357,12 +404,68 @@ public class TwineNode : MonoBehaviour
                 {
                     checkedChildNames.Add(linkNames[index]);
                     checkedChildren.Add(children[index]);
-                } else
+                }
+                else
                 {
                     string linkName = linkNames[index];
                     int condIndex = conditionalLinks.IndexOf(linkName);
                     string varName = conditionalVars[condIndex];
-                    if (globalVariables.GetValue(varName) == conditionalVals[condIndex])
+                    // Operation of the condition - e.g. "=", "!="
+                    string operation = conditionalOp[condIndex];
+                    // Truth value of the conditional
+                    bool conditionMet = false;
+                    switch (operation)
+                    {
+                        // For equals and not equals, we compare the values
+                        // without caring if they can be converted to ints.
+                        case "=":
+                            conditionMet = globalVariables.GetValue(varName) == conditionalVals[condIndex];
+                            break;
+                        case "!=":
+                            conditionMet = !(globalVariables.GetValue(varName) == conditionalVals[condIndex]);
+                            break;
+                        default:
+                            // For greater-than/less-than-style comparisons, we
+                            // break and leave conditionMet as false unless both
+                            // values can be converted to ints.
+                            int val1;
+                            if (!Int32.TryParse(globalVariables.GetValue(varName), out val1)) break;
+                            int val2;
+                            if (!Int32.TryParse(conditionalVals[condIndex], out val2)) break;
+                            switch (operation)
+                            {
+                                case "<":
+                                    if (val1 < val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                case "<=":
+                                    if (val1 <= val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                case ">":
+                                    if (val1 > val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                case ">=":
+                                    if (val1 >= val2)
+                                    {
+                                        conditionMet = true;
+                                    }
+                                    break;
+                                default:
+                                    conditionMet = false;
+                                    Exception e = new Exception("Twine conditional has unknown operation");
+                                    throw e;
+                            }
+                            break;
+                    }
+                    if (conditionMet)
                     {
                         checkedChildNames.Add(linkNames[index]);
                         checkedChildren.Add(children[index]);
@@ -389,17 +492,18 @@ public class TwineNode : MonoBehaviour
         assignmentVals.Add(value);
     }
 
-    public void AddConditional(string var, string value, string link)
+    public void AddConditional(string var, string value, string link, string match)
     {
-        Debug.Log("Add conditional");
         if (conditionalVars == null)
         {
             conditionalVars = new List<string>();
             conditionalVals = new List<string>();
             conditionalLinks = new List<string>();
+            conditionalOp = new List<string>();
         }
         conditionalVars.Add(var);
         conditionalVals.Add(value);
         conditionalLinks.Add(link);
+        conditionalOp.Add(match);
     }
 }
