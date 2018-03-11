@@ -24,20 +24,20 @@ public class TwineNodeEditor : Editor {
 		string _content = EditorGUILayout.TextArea (node.content);
 		EditorGUI.indentLevel -= 1;
 
-		bool _isDecisionNode = EditorGUILayout.Toggle ("Decision node?", node.isDecisionNode);
-		GameObject[] _objectsToTrigger = PrairieGUI.drawObjectList ("Objects To Trigger", node.objectsToTrigger);
-		GameObject[] _objectsToEnable = PrairieGUI.drawObjectList<GameObject> ("Objects To Enable:", node.objectsToEnable);
-		GameObject[] _objectsToRotate = PrairieGUI.drawObjectList<GameObject> ("Objects To Rotate:", node.objectsToRotate);
-		int _rotX = EditorGUILayout.IntField("X-axis rotation amount:", node.rotX);
-		int _rotY = EditorGUILayout.IntField("Y-axis rotation amount:", node.rotY);
-		int _rotZ = EditorGUILayout.IntField("Z-axis rotation amount:", node.rotZ);
-		GameObject[] _objectsToTransform = PrairieGUI.drawObjectList<GameObject> ("Objects To Transform:", node.objectsToTransform);
-		int _trX = EditorGUILayout.IntField("X-axis transform amount:", node.trX);
-		int _trY = EditorGUILayout.IntField("Y-axis transform amount:", node.trY);
-		int _trZ = EditorGUILayout.IntField("Z-axis transform amount:", node.trZ);
+        bool _isDecisionNode = EditorGUILayout.Toggle("Decision node?", node.isDecisionNode);
+        GameObject[] _objectsToTrigger = PrairieGUI.drawObjectList("Objects To Trigger", node.objectsToTrigger);
+        GameObject[] _objectsToEnable = PrairieGUI.drawObjectList<GameObject>("Objects To Enable:", node.objectsToEnable);
+        GameObject[] _objectsToRotate = PrairieGUI.drawObjectList<GameObject>("Objects To Rotate:", node.objectsToRotate);
+        int _rotX = EditorGUILayout.IntField("X-axis rotation amount:", node.rotX);
+        int _rotY = EditorGUILayout.IntField("Y-axis rotation amount:", node.rotY);
+        int _rotZ = EditorGUILayout.IntField("Z-axis rotation amount:", node.rotZ);
+        GameObject[] _objectsToTransform = PrairieGUI.drawObjectList<GameObject>("Objects To Transform:", node.objectsToTransform);
+        int _trX = EditorGUILayout.IntField("X-axis transform amount:", node.trX);
+        int _trY = EditorGUILayout.IntField("Y-axis transform amount:", node.trY);
+        int _trZ = EditorGUILayout.IntField("Z-axis transform amount:", node.trZ);
 
-		// Read-Only Display:
-		PrairieGUI.drawObjectListReadOnly ("Children", node.children);
+        // Read-Only Display:
+        PrairieGUI.drawObjectListReadOnly ("Children", node.children);
 		PrairieGUI.drawObjectListReadOnly ("Parents", node.parents.ToArray ());
 
 		// Save changes to the TwineNode if the user edits something in the GUI:
@@ -49,12 +49,12 @@ public class TwineNodeEditor : Editor {
 			node.objectsToEnable = _objectsToEnable;
 			node.objectsToRotate = _objectsToRotate;
 			node.objectsToTransform = _objectsToTransform;
-			node.rotX = _rotX;
-			node.rotY = _rotY;
-			node.rotZ = _rotZ;
 			node.trX = _trX;
 			node.trY = _trY;
 			node.trZ = _trZ;
+			node.rotX = _rotX;
+			node.rotY = _rotY;
+			node.rotZ = _rotZ;
 		}
 	}
 }
